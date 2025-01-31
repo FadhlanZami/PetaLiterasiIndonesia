@@ -1,0 +1,141 @@
+<!-- Section Grafik -->
+<section id="Grafik" class="py-5 bg-dark">
+    <div class="container">
+        <h3 class="text-center mb-4 text-white">Grafik Presentase </h3>
+        <!-- Dropdown Wilayah -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="dropdown-region text-center">
+                    <label for="regionSelect" class="form-label text-white mb-2">
+                        🌍 Pilih Wilayah:
+                    </label>
+                    <select 
+                        id="regionSelect" 
+                        class="form-select shadow-sm"
+                        aria-label="Pilih wilayah untuk melihat data literasi"
+                        title="Pilih Wilayah"
+                    >
+                        <option value="">Semua Wilayah</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grafik -->
+        <div id="chartContainer" class="row g-4">
+            <div class="col-md-6">
+                <div class="chart-card bg-light p-4 rounded shadow-sm">
+                    <h3 class="text-center mb-3 text-primary">Rata-rata Nasional per Tahun</h3>
+                    <canvas id="nationalChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card bg-light p-4 rounded shadow-sm">
+                    <h3 class="text-center mb-3 text-success">Tingkat Literasi per Wilayah</h3>
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script untuk Grafik (Tambahkan di akhir section) -->
+    <script>
+    // Pastikan Chart.js sudah di-load
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js belum di-load!');
+    }
+
+    // Inisialisasi chart
+    let nationalChart, regionChart;
+
+    // Load data rata-rata nasional
+    fetch('peta/literacy_data.json')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('nationalChart').getContext('2d');
+            nationalChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Rata-rata Nasional (%)',
+                        data: Object.values(data),
+                        backgroundColor: '#282ca7',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error loading national data:', error));
+
+    // Load data wilayah
+    fetch('peta/literacy_by_region.json')
+        .then(response => response.json())
+        .then(data => {
+            const regionSelect = document.getElementById('regionSelect');
+            
+            // Isi dropdown
+            Object.keys(data).forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionSelect.appendChild(option);
+            });
+
+            // Inisialisasi chart pertama kali
+            updateRegionChart(Object.keys(data)[0]);
+
+            // Event listener untuk dropdown
+            regionSelect.addEventListener('change', function() {
+                if (this.value) updateRegionChart(this.value);
+            });
+        })
+        .catch(error => console.error('Error loading region data:', error));
+
+    function updateRegionChart(regionName) {
+        fetch('peta/literacy_by_region.json')
+            .then(response => response.json())
+            .then(data => {
+                const regionData = data[regionName];
+                const ctx = document.getElementById('regionChart').getContext('2d');
+                
+                // Hancurkan chart sebelumnya
+                if (regionChart) regionChart.destroy();
+                
+                regionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(regionData),
+                        datasets: [{
+                            label: `Literasi di ${regionName} (%)`,
+                            data: Object.values(regionData),
+                            backgroundColor: '#28a745'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: Math.min(...Object.values(regionData)) - 5,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error updating region chart:', error));
+    }
+    </script>
+</section>

@@ -1,0 +1,72 @@
+<!-- Section Peta -->
+<section id="Peta" class="py-5 bg-dark">
+    <div class="container">
+        <h2 class="text-center mb-4 text-white">Peta Tingkat Melek Huruf Indonesia</h2>
+        
+        <!-- Dropdown Tahun -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="dropdown-container text-center">
+                    <label for="yearSelect" class="form-label text-white mb-2">
+                        📅 Pilih Tahun:
+                    </label>
+                    <select 
+                        id="yearSelect" 
+                        class="form-select shadow-sm text-center"
+                        aria-label="Pilih tahun data literasi"
+                        title="Pilih Tahun"
+                    >
+                        <option value="peta/literasi_2021.html">2021</option>
+                        <option value="peta/literasi_2022.html">2022</option>
+                        <option value="peta/literasi_2023.html">2023</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Peta -->
+        <div id="mapContainer" class="ratio ratio-16x9">
+            <iframe id="mapFrame" src="peta/literasi_2021.html" title="Peta Literasi Indonesia"></iframe>
+        </div>
+    </div>
+
+    <script>
+    // Event listener untuk dropdown tahun
+    document.getElementById('yearSelect').addEventListener('change', function() {
+        const iframe = document.getElementById('mapFrame');
+        const loadingIndicator = document.createElement('div');
+        
+        // Tambahkan indikator loading
+        loadingIndicator.className = 'loading-overlay';
+        loadingIndicator.innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        `;
+        document.getElementById('mapContainer').appendChild(loadingIndicator);
+        
+        // Update sumber iframe dengan timestamp untuk menghindari cache
+        iframe.src = this.value + '?t=' + new Date().getTime();
+        
+        // Hilangkan indikator loading setelah iframe dimuat
+        iframe.onload = () => {
+            loadingIndicator.remove();
+        };
+    });
+    </script>
+
+    <style>
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    </style>
+</section>

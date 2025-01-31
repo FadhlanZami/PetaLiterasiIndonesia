@@ -1,0 +1,62 @@
+<!-- Section Tabel -->
+<section id="Tabel" class="py-5 bg-dark">
+    <!-- Tabel Tingkat Literasi Tertinggi dan Terendah -->
+    <div id="literacyTableContainer">
+        <div>
+            <h4 style="color: #fcfcfc;">10 Kabupaten dengan Tingkat Literasi Tertinggi</h4>
+            <table id="highestLiteracyTable">
+                <thead>
+                    <tr>
+                        <th>Nomor</th>
+                        <th>Kabupaten</th>
+                        <th>Tingkat Literasi (%)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div>
+            <h4 style="color: #f8f7fa;">10 Kabupaten dengan Tingkat Literasi Terendah</h4>
+            <table id="lowestLiteracyTable">
+                <thead>
+                    <tr>
+                        <th>Nomor</th>
+                        <th>Kabupaten</th>
+                        <th>Tingkat Literasi (%)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <script> 
+// Tabel Tingkat Literasi Tertinggi dan Terendah
+function updateLiteracyTables(year) {
+            fetch(`peta/literacy_${year}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    const sortedData = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+                    const highestLiteracy = sortedData.slice(0, 10);
+                    const lowestLiteracy = sortedData.slice(-10);
+
+                    const highestTable = document.getElementById("highestLiteracyTable").getElementsByTagName("tbody")[0];
+                    const lowestTable = document.getElementById("lowestLiteracyTable").getElementsByTagName("tbody")[0];
+
+                    highestLiteracy.forEach((item, index) => {
+                        const row = highestTable.insertRow();
+                        row.innerHTML = `<td>${index + 1}</td><td>${item[0]}</td><td>${item[1]}%</td>`;
+                    });
+
+                    lowestLiteracy.forEach((item, index) => {
+                        const row = lowestTable.insertRow();
+                        row.innerHTML = `<td>${index + 1}</td><td>${item[0]}</td><td>${item[1]}%</td>`;
+                    });
+                });
+        }
+        
+        // Memanggil fungsi untuk memperbarui tabel dengan data tingkat literasi
+        updateLiteracyTables(2021);  // Default untuk tahun 2021
+    </script>
+</section>
